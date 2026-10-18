@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>华文极限挑战营 - 三年级进阶特训</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            user-select: none;
+            background: #090d16;
+            color: #f8fafc;
+        }
+        .font-game {
+            font-family: 'ZCOOL KuaiLe', cursive, sans-serif;
+        }
+        .btn-bounce:active {
+            transform: scale(0.93);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes roll-dice {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.25); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .animate-dice {
+            animation: roll-dice 0.5s ease-in-out;
+        }
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        .animate-pulse-red {
+            animation: pulse-red 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 bg-slate-950 text-white overflow-x-hidden">
+
+    <header class="w-full max-w-4xl flex justify-between items-center p-3 bg-slate-900/90 backdrop-blur rounded-2xl border-2 border-slate-800 shadow-2xl mb-3">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-tr from-red-600 via-orange-500 to-yellow-400 rounded-xl flex items-center justify-center text-slate-950 text-2xl font-bold shadow-lg border-2 border-yellow-200 animate-float">
+                <i class="fa-solid fa-dragon"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-game text-xl sm:text-2xl text-yellow-400 tracking-wider">华文极限挑战营</h1>
+                    <span class="bg-red-600/90 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-widest border border-red-400">HARDCORE</span>
+                </div>
+                <p class="text-xs text-slate-400">三年级高阶练习 • 进阶英雄争霸赛</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <!-- Combo Multiplier -->
+            <div class="hidden sm:flex flex-col items-end px-3 py-1 bg-slate-800/80 rounded-xl border border-slate-700">
+                <span class="text-[10px] text-amber-400 font-bold uppercase">连答 Combo</span>
+                <div class="text-xs font-black text-amber-300 font-mono" id="comboDisplay">x0</div>
+            </div>
+
+            <!-- Global Points Display -->
+            <div class="flex flex-col items-end">
+                <span class="text-xs text-slate-400 font-bold uppercase">英雄战力金币</span>
+                <div class="flex items-center gap-1 text-amber-400 font-black text-lg">
+                    <i class="fa-solid fa-coins animate-bounce"></i>
+                    <span id="globalCoins">150</span>
+                </div>
+            </div>
+            <button id="soundToggle" onclick="toggleAudio()" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-xl flex items-center justify-center text-slate-200 text-lg transition btn-bounce border border-slate-700">
+                <i id="soundIcon" class="fa-solid fa-volume-high text-green-400"></i>
+            </button>
+        </div>
+    </header>
+
+    <main id="app" class="w-full max-w-4xl flex-1 flex flex-col justify-center items-center relative my-2">
+
+        <!-- GAME SELECTOR SCREEN -->
+        <div id="gameMenu" class="w-full flex flex-col items-center text-center py-6 px-4 bg-slate-900/80 backdrop-blur rounded-3xl border border-slate-800 shadow-2xl">
+            <div class="inline-block px-3 py-1 bg-red-950/60 border border-red-500/40 text-red-400 text-xs font-bold rounded-full mb-2">🔥 难度提升：适合富有挑战精神的男孩子！</div>
+            <h2 class="font-game text-3xl sm:text-4xl text-yellow-400 mb-2">选择你的高阶英雄任务！</h2>
+            <p class="text-slate-300 text-sm sm:text-base max-w-md mb-6">关卡加入了限时倒计时、多重连词与深层错别字陷阱：</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-w-3xl mb-4">
+                
+                <!-- Game 1: Hardcore Sentence -->
+                <button onclick="switchGame('sentence')" class="group p-4 bg-gradient-to-br from-rose-700 via-red-800 to-slate-900 hover:from-rose-600 hover:to-red-700 rounded-2xl flex flex-col items-center text-center transition-all duration-200 transform hover:-translate-y-1 shadow-xl border border-rose-500/40 relative overflow-hidden">
+                    <span class="absolute top-2 right-2 bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded">BOSS关</span>
+                    <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-3xl text-rose-300 mb-2 group-hover:scale-110 transition border border-rose-400/20">
+                        <i class="fa-solid fa-stopwatch-20"></i>
+                    </div>
+                    <div class="font-bold text-white text-lg font-game mb-1">限时复句造句关</div>
+                    <p class="text-xs text-rose-200/80 leading-relaxed">在倒计时结束前，将“不仅……而且……”等复杂关联词正确组句！</p>
+                </button>
+
+                <!-- Game 2: Advanced Reading -->
+                <button onclick="switchGame('reading')" class="group p-4 bg-gradient-to-br from-sky-700 via-blue-800 to-slate-900 hover:from-sky-600 hover:to-blue-700 rounded-2xl flex flex-col items-center text-center transition-all duration-200 transform hover:-translate-y-1 shadow-xl border border-sky-500/40">
+                    <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-3xl text-sky-300 mb-2 group-hover:scale-110 transition border border-sky-400/20">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div class="font-bold text-white text-lg font-game mb-1">高阶阅读推理</div>
+                    <p class="text-xs text-sky-200/80 leading-relaxed">阅读高难度英雄故事，分析上下文隐含意思与词义归纳！</p>
+                </button>
+
+                <!-- Game 3: Hard Monopoly -->
+                <button onclick="switchGame('monopoly')" class="group p-4 bg-gradient-to-br from-amber-700 via-orange-800 to-slate-900 hover:from-amber-600 hover:to-orange-700 rounded-2xl flex flex-col items-center text-center transition-all duration-200 transform hover:-translate-y-1 shadow-xl border border-amber-500/40">
+                    <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-3xl text-amber-300 mb-2 group-hover:scale-110 transition border border-amber-400/20">
+                        <i class="fa-solid fa-chess-knight"></i>
+                    </div>
+                    <div class="font-bold text-white text-lg font-game mb-1">大富翁：成语陷阱</div>
+                    <p class="text-xs text-amber-200/80 leading-relaxed">遭遇多音字陷阱、成语典故与高难度的量词搭配问答！</p>
+                </button>
+
+                <!-- Game 4: Radical Fusion Hard -->
+                <button onclick="switchGame('radicals')" class="group p-4 bg-gradient-to-br from-indigo-700 via-purple-800 to-slate-900 hover:from-indigo-600 hover:to-purple-700 rounded-2xl flex flex-col items-center text-center transition-all duration-200 transform hover:-translate-y-1 shadow-xl border border-indigo-500/40">
+                    <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-3xl text-indigo-300 mb-2 group-hover:scale-110 transition border border-indigo-400/20">
+                        <i class="fa-solid fa-cubes-stacked"></i>
+                    </div>
+                    <div class="font-bold text-white text-lg font-game mb-1">三重部件汉字拆合</div>
+                    <p class="text-xs text-indigo-200/80 leading-relaxed">涉及 3 部件组合（如 艹+宀+𠂉=营），加入干扰偏旁卡片！</p>
+                </button>
+
+                <!-- Game 5: Detective Master -->
+                <button onclick="switchGame('detective')" class="group p-4 bg-gradient-to-br from-emerald-700 via-teal-800 to-slate-900 hover:from-emerald-600 hover:to-teal-700 rounded-2xl flex flex-col items-center text-center transition-all duration-200 transform hover:-translate-y-1 shadow-xl border border-emerald-500/40 sm:col-span-2 md:col-span-1">
+                    <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center text-3xl text-emerald-300 mb-2 group-hover:scale-110 transition border border-emerald-400/20">
+                        <i class="fa-solid fa-user-ninja"></i>
+                    </div>
+                    <div class="font-bold text-white text-lg font-game mb-1">高级语病侦探</div>
+                    <p class="text-xs text-emerald-200/80 leading-relaxed">找出句子中的“重复赘述”、“搭配不当”与多重错别字！</p>
+                </button>
+
+            </div>
+        </div>
+
+        <div id="sentenceView" class="w-full hidden flex-col bg-slate-900/90 backdrop-blur rounded-3xl p-4 sm:p-6 border border-slate-800 shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+                <button onclick="showMenu()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition btn-bounce border border-slate-700">
+                    <i class="fa-solid fa-arrow-left"></i> 返回关卡
+                </button>
+                <div class="font-game text-rose-400 text-xl flex items-center gap-2">
+                    ⏱️ 限时复句造句关
+                    <span id="sentTimerBox" class="px-2.5 py-0.5 bg-red-900/80 border border-red-500 rounded-full font-mono text-xs text-red-200 font-bold animate-pulse-red">⏳ 30s</span>
+                </div>
+                <div id="sentProgress" class="text-xs bg-slate-950 px-2.5 py-1 rounded-full text-rose-300 font-mono">1/3</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800 flex flex-col items-center justify-center text-center">
+                    <div id="sentImageVisual" class="w-32 h-32 sm:w-36 sm:h-36 bg-gradient-to-tr from-rose-900/40 to-orange-900/40 rounded-2xl border border-rose-500/30 flex items-center justify-center text-6xl mb-2 shadow-inner">
+                        🚀
+                    </div>
+                    <p id="sentImgTag" class="text-xs text-rose-300 font-bold">关联句型：不仅……而且……</p>
+                </div>
+
+                <div class="md:col-span-2 bg-slate-950 rounded-2xl p-4 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs text-slate-400 font-bold">组装高级关联句（点击卡片组合）：</span>
+                            <span class="text-[10px] text-amber-400 italic">难度：高阶关联词</span>
+                        </div>
+                        <div id="sentSlotContainer" class="min-h-[100px] bg-slate-900/90 border-2 border-dashed border-rose-500/30 rounded-xl p-3 flex flex-wrap gap-2 items-center">
+                            <!-- Cards inserted here -->
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 justify-end mt-3">
+                        <button onclick="resetSentSlots()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition btn-bounce border border-slate-700">
+                            <i class="fa-solid fa-rotate-left"></i> 重置卡牌
+                        </button>
+                        <button onclick="checkSentenceResult()" class="px-5 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl font-game transition btn-bounce shadow-md flex items-center gap-2">
+                            提交挑战 <i class="fa-solid fa-shield-halved"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+                <p class="text-xs text-slate-400 mb-3 text-center">💡 候选词牌卡片（按正确复句语序排列）：</p>
+                <div id="sentWordDeck" class="flex flex-wrap justify-center gap-2">
+                    <!-- Dynamic word tiles -->
+                </div>
+            </div>
+        </div>
+
+        <div id="readingView" class="w-full hidden flex-col bg-slate-900/90 backdrop-blur rounded-3xl p-4 sm:p-6 border border-slate-800 shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+                <button onclick="showMenu()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition btn-bounce border border-slate-700">
+                    <i class="fa-solid fa-arrow-left"></i> 返回关卡
+                </button>
+                <div class="font-game text-sky-400 text-xl">📖 高阶阅读推理挑战</div>
+                <div id="readProgress" class="text-xs bg-slate-950 px-2.5 py-1 rounded-full text-sky-300 font-mono">篇章 1/2</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="bg-slate-950 rounded-2xl p-4 sm:p-5 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                            <h3 id="readStoryTitle" class="font-game text-sky-400 text-lg">《黑夜里的探照灯》</h3>
+                            <button onclick="speakReadingPassage()" class="px-2.5 py-1 bg-sky-900/40 hover:bg-sky-800/60 text-sky-300 rounded-lg text-xs font-bold border border-sky-500/30 transition btn-bounce">
+                                <i class="fa-solid fa-volume-high"></i> 听读短文
+                            </button>
+                        </div>
+                        <p id="readPassageText" class="text-sm sm:text-base leading-relaxed text-slate-200 font-normal space-y-2 max-h-[220px] overflow-y-auto pr-2">
+                            <!-- Story passage -->
+                        </p>
+                    </div>
+                    <p class="text-xs text-sky-400/80 mt-3 pt-2 border-t border-slate-800">💡 难度升级：需要结合上下文推断隐含意思！</p>
+                </div>
+
+                <div class="bg-slate-950 rounded-2xl p-4 sm:p-5 border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-sky-400 mb-2">深层推理问答</div>
+                        <p id="readQuestionText" class="text-sm sm:text-base font-bold text-white mb-4">
+                            1. 文中的“黑夜里的探照灯”实际上指的是什么？
+                        </p>
+                        <div id="readOptionsContainer" class="flex flex-col gap-2.5">
+                            <!-- Option buttons -->
+                        </div>
+                    </div>
+                    <div id="readFeedback" class="mt-4 p-3 rounded-xl bg-slate-900 text-xs text-slate-300 text-center min-h-[44px] flex items-center justify-center border border-slate-800">
+                        请仔细推断后选择！
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="monopolyView" class="w-full hidden flex-col bg-slate-900/90 backdrop-blur rounded-3xl p-4 sm:p-6 border border-slate-800 shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+                <button onclick="showMenu()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition btn-bounce border border-slate-700">
+                    <i class="fa-solid fa-arrow-left"></i> 返回关卡
+                </button>
+                <div class="font-game text-amber-400 text-xl">🎲 大富翁：成语与多音字陷阱</div>
+                <div class="text-xs text-slate-400">当前位置：<span id="monoPosText" class="text-yellow-300 font-bold">起点</span></div>
+            </div>
+
+            <!-- Monopoly Board Grid (10 tiles) -->
+            <div class="grid grid-cols-5 gap-2 sm:gap-3 mb-6">
+                <div id="tile-0" class="tile h-20 bg-amber-900/30 border-2 border-amber-400 rounded-2xl flex flex-col items-center justify-center text-xs font-bold text-amber-200 relative">
+                    <span>🚩 起点</span>
+                    <div id="playerPin" class="absolute -bottom-2 bg-yellow-400 text-slate-950 rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs shadow-md border border-slate-950">🥷</div>
+                </div>
+                <div id="tile-1" class="tile h-20 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold text-slate-300 text-center p-1">1. 多音字陷阱</div>
+                <div id="tile-2" class="tile h-20 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold text-slate-300 text-center p-1">2. 英雄宝箱 +30💰</div>
+                <div id="tile-3" class="tile h-20 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold text-slate-300 text-center p-1">3. 高级成语典故</div>
+                <div id="tile-4" class="tile h-20 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold text-slate-300 text-center p-1">4. 词义辨析</div>
+                <div id="tile-5" class="tile h-20 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold text-slate-300 text-center p-1">5. 补给站</div>
+                <div id="tile-6" class="tile h-20 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold text-slate-300 text-center p-1">6. 复杂量词考验</div>
+                <div id="tile-7" class="tile h-20 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold text-slate-300 text-center p-1">7. 错字风暴 -15💰</div>
+                <div id="tile-8" class="tile h-20 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col items-center justify-center text-[11px] font-bold text-slate-300 text-center p-1">8. 句型辨析</div>
+                <div id="tile-9" class="tile h-20 bg-emerald-900/40 border-2 border-emerald-400 rounded-2xl flex flex-col items-center justify-center text-xs font-bold text-emerald-200">🏆 冠军奖杯</div>
+            </div>
+
+            <!-- Action Box -->
+            <div id="monoCardArea" class="bg-slate-950 rounded-2xl p-5 border border-slate-800 min-h-[160px] flex flex-col items-center justify-center text-center mb-4">
+                <p id="monoEventText" class="text-base sm:text-lg text-slate-200 mb-4">点击下方按钮掷骰子开始前进！</p>
+                <div id="monoOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-md hidden"></div>
+            </div>
+
+            <div class="flex justify-center items-center gap-4">
+                <button id="rollBtn" onclick="rollMonopolyDice()" class="px-8 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold rounded-2xl font-game text-xl shadow-lg transition btn-bounce flex items-center gap-2">
+                    <i id="diceIcon" class="fa-solid fa-dice text-2xl"></i> 掷骰子前进！
+                </button>
+            </div>
+        </div>
+
+        <div id="radicalsView" class="w-full hidden flex-col bg-slate-900/90 backdrop-blur rounded-3xl p-4 sm:p-6 border border-slate-800 shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+                <button onclick="showMenu()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition btn-bounce border border-slate-700">
+                    <i class="fa-solid fa-arrow-left"></i> 返回关卡
+                </button>
+                <div class="font-game text-indigo-400 text-xl">🧩 三重部件汉字拆合</div>
+                <div id="radProgress" class="text-xs bg-slate-950 px-2.5 py-1 rounded-full text-indigo-300 font-mono">1/3</div>
+            </div>
+
+            <div class="bg-slate-950 rounded-2xl p-4 border border-slate-800 text-center mb-6">
+                <div id="radQuestTitle" class="text-xs font-bold text-indigo-400 mb-1">拼字目标</div>
+                <div id="radTargetMeaning" class="text-lg sm:text-xl font-bold text-white mb-2">【目标】从下方选出 3 个零件，拼成“经营/军营”的字：</div>
+                
+                <div class="flex justify-center items-center gap-2 my-4">
+                    <div id="slot1" class="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 border-2 border-dashed border-indigo-400/60 rounded-2xl flex items-center justify-center text-2xl font-bold text-yellow-300">?</div>
+                    <span class="text-xl text-slate-500 font-bold">+</span>
+                    <div id="slot2" class="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 border-2 border-dashed border-indigo-400/60 rounded-2xl flex items-center justify-center text-2xl font-bold text-yellow-300">?</div>
+                    <span class="text-xl text-slate-500 font-bold">+</span>
+                    <div id="slot3" class="w-14 h-14 sm:w-16 sm:h-16 bg-slate-900 border-2 border-dashed border-indigo-400/60 rounded-2xl flex items-center justify-center text-2xl font-bold text-yellow-300">?</div>
+                    <span class="text-xl text-slate-500 font-bold">=</span>
+                    <div id="slotResult" class="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-950 border-2 border-indigo-400 rounded-2xl flex items-center justify-center text-3xl font-bold text-emerald-400">?</div>
+                </div>
+                <button onclick="resetRadicalSlots()" class="text-xs text-indigo-300 underline hover:text-indigo-200">清空已选零件</button>
+            </div>
+
+            <p class="text-xs text-slate-400 text-center mb-3">💡 提示：含有干扰零件卡片，请仔细筛选！</p>
+            <div id="radPartsContainer" class="flex flex-wrap justify-center gap-3 mb-6">
+                <!-- Part cards inserted here -->
+            </div>
+
+            <button onclick="checkRadicalPuzzle()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-2xl font-game text-lg transition btn-bounce">
+                检验合成结果 <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
+        </div>
+
+        <div id="detectiveView" class="w-full hidden flex-col bg-slate-900/90 backdrop-blur rounded-3xl p-4 sm:p-6 border border-slate-800 shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+                <button onclick="showMenu()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition btn-bounce border border-slate-700">
+                    <i class="fa-solid fa-arrow-left"></i> 返回关卡
+                </button>
+                <div class="font-game text-emerald-400 text-xl">🥷 高级语病与错字侦探</div>
+                <div id="detProgress" class="text-xs bg-slate-950 px-2.5 py-1 rounded-full text-emerald-300 font-mono">案件 1/3</div>
+            </div>
+
+            <div class="bg-amber-950/20 border-2 border-amber-500/30 rounded-2xl p-5 mb-6 text-slate-100 relative">
+                <div class="flex items-center gap-2 text-amber-400 font-bold mb-2">
+                    <i class="fa-solid fa-user-secret"></i> 高难度卷宗：点击句子中【语病或错误搭配的词组】
+                </div>
+                <div id="caseStoryText" class="text-base sm:text-lg leading-relaxed bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-wrap gap-2 justify-start items-center">
+                    <!-- Words split into clickable tokens -->
+                </div>
+            </div>
+
+            <div id="detFeedback" class="bg-slate-950 rounded-2xl p-4 border border-slate-800 text-center mb-4 min-h-[60px] flex items-center justify-center">
+                <p id="detHintText" class="text-sm text-slate-300">🔍 侦探提示：本关包含“意思重复赘述”或“搭配错误”陷阱！</p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center text-xs text-slate-600 py-2">
+        华文极限挑战营 • 三年级高阶华文思维训练
+    </footer>
+
+    <script>
+        /* --------------------------------------------------------
+           Global State & Web Audio Controller
+           -------------------------------------------------------- */
+        let globalCoins = 150;
+        let comboCount = 0;
+        let audioEnabled = true;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!audioEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new AudioCtx();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.35);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.linearRampToValueAtTime(120, now + 0.35);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'roll') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.linearRampToValueAtTime(700, now + 0.12);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('soundIcon');
+            icon.className = audioEnabled ? 'fa-solid fa-volume-high text-green-400' : 'fa-solid fa-volume-xmark text-slate-500';
+        }
+
+        function addCoins(amount) {
+            globalCoins += amount;
+            document.getElementById('globalCoins').innerText = globalCoins;
+        }
+
+        function registerCombo(success) {
+            if (success) {
+                comboCount++;
+                if (comboCount > 1) {
+                    addCoins(comboCount * 5); // Bonus coins for streak
+                }
+            } else {
+                comboCount = 0;
+            }
+            document.getElementById('comboDisplay').innerText = `x${comboCount}`;
+        }
+
+        function showMenu() {
+            clearInterval(sentenceTimer);
+            document.getElementById('gameMenu').classList.remove('hidden');
+            document.getElementById('sentenceView').classList.add('hidden');
+            document.getElementById('readingView').classList.add('hidden');
+            document.getElementById('monopolyView').classList.add('hidden');
+            document.getElementById('radicalsView').classList.add('hidden');
+            document.getElementById('detectiveView').classList.add('hidden');
+        }
+
+        function switchGame(gameType) {
+            document.getElementById('gameMenu').classList.add('hidden');
+            if (gameType === 'sentence') {
+                document.getElementById('sentenceView').classList.remove('hidden');
+                document.getElementById('sentenceView').classList.add('flex');
+                initSentenceGame();
+            } else if (gameType === 'reading') {
+                document.getElementById('readingView').classList.remove('hidden');
+                document.getElementById('readingView').classList.add('flex');
+                initReadingGame();
+            } else if (gameType === 'monopoly') {
+                document.getElementById('monopolyView').classList.remove('hidden');
+                document.getElementById('monopolyView').classList.add('flex');
+                initMonopoly();
+            } else if (gameType === 'radicals') {
+                document.getElementById('radicalsView').classList.remove('hidden');
+                document.getElementById('radicalsView').classList.add('flex');
+                initRadicals();
+            } else if (gameType === 'detective') {
+                document.getElementById('detectiveView').classList.remove('hidden');
+                document.getElementById('detectiveView').classList.add('flex');
+                initDetective();
+            }
+        }
+
+        /* --------------------------------------------------------
+           1. HARDCORE TIMED SENTENCE LOGIC (限时关联词造句)
+           -------------------------------------------------------- */
+        const hardSentenceQuests = [
+            {
+                emoji: "🚀",
+                tag: "递进关联词：不仅……而且……",
+                correctOrder: ["哥哥", "不仅", "成绩优异，", "而且", "乐于助人。"],
+                scrambled: ["而且", "成绩优异，", "不仅", "乐于助人。", "哥哥"]
+            },
+            {
+                emoji: "🌧️",
+                tag: "转折关联词：尽管……还是……",
+                correctOrder: ["尽管", "外面", "下着大雨，", "他", "还是", "坚持练习。"],
+                scrambled: ["还是", "外面", "尽管", "坚持练习。", "下着大雨，", "他"]
+            },
+            {
+                emoji: "🏆",
+                tag: "条件关联词：只要……就……",
+                correctOrder: ["只要", "我们", "努力拼搏，", "就", "能取得成功。"],
+                scrambled: ["努力拼搏，", "能取得成功。", "只要", "就", "我们"]
+            }
+        ];
+
+        let currentSentIdx = 0;
+        let selectedSentWords = [];
+        let sentenceTimer = null;
+        let timeLeft = 30;
+
+        function initSentenceGame() {
+            currentSentIdx = 0;
+            loadSentenceQuest();
+        }
+
+        function loadSentenceQuest() {
+            clearInterval(sentenceTimer);
+            const q = hardSentenceQuests[currentSentIdx];
+            selectedSentWords = [];
+            timeLeft = 30;
+            
+            document.getElementById('sentProgress').innerText = `${currentSentIdx + 1}/${hardSentenceQuests.length}`;
+            document.getElementById('sentImageVisual').innerText = q.emoji;
+            document.getElementById('sentImgTag').innerText = q.tag;
+
+            renderSentSlots();
+            startSentenceTimer();
+
+            const deck = document.getElementById('sentWordDeck');
+            deck.innerHTML = '';
+
+            q.scrambled.forEach(word => {
+                const card = document.createElement('button');
+                card.className = 'px-3.5 py-2.5 bg-slate-800 hover:bg-rose-600/80 text-white font-bold rounded-xl border border-rose-500/30 text-sm transition btn-bounce shadow';
+                card.innerText = word;
+                card.onclick = () => {
+                    selectedSentWords.push(word);
+                    card.disabled = true;
+                    card.classList.add('opacity-30');
+                    playSound('roll');
+                    renderSentSlots();
+                };
+                deck.appendChild(card);
+            });
+        }
+
+        function startSentenceTimer() {
+            document.getElementById('sentTimerBox').innerText = `⏳ ${timeLeft}s`;
+            sentenceTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('sentTimerBox').innerText = `⏳ ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(sentenceTimer);
+                    playSound('wrong');
+                    registerCombo(false);
+                    alert("⏰ 时间到！BOSS 判定挑战失败，重新尝试本题吧！");
+                    loadSentenceQuest();
+                }
+            }, 1000);
+        }
+
+        function renderSentSlots() {
+            const container = document.getElementById('sentSlotContainer');
+            container.innerHTML = '';
+            if (selectedSentWords.length === 0) {
+                container.innerHTML = '<span class="text-xs text-slate-500 italic">按关联词逻辑依次点击词卡...</span>';
+                return;
+            }
+
+            selectedSentWords.forEach((w) => {
+                const tag = document.createElement('span');
+                tag.className = 'px-3 py-1.5 bg-rose-600 text-white rounded-lg font-bold text-sm shadow flex items-center gap-1';
+                tag.innerText = w;
+                container.appendChild(tag);
+            });
+        }
+
+        function resetSentSlots() {
+            loadSentenceQuest();
+        }
+
+        function checkSentenceResult() {
+            clearInterval(sentenceTimer);
+            const q = hardSentenceQuests[currentSentIdx];
+            const isCorrect = JSON.stringify(selectedSentWords) === JSON.stringify(q.correctOrder);
+
+            if (isCorrect) {
+                playSound('correct');
+                registerCombo(true);
+                addCoins(40);
+                alert("🎉 逻辑严密！成功击破限时关卡！获得 40 金币！");
+                currentSentIdx++;
+                if (currentSentIdx < hardSentenceQuests.length) {
+                    loadSentenceQuest();
+                } else {
+                    alert("🏆 祝贺你！完成了所有高阶限时造句关卡！奖励 80 金币！");
+                    addCoins(80);
+                    showMenu();
+                }
+            } else {
+                playSound('wrong');
+                registerCombo(false);
+                alert("❌ 关联词的位置不够通顺哦！仔细思考关联词与主语的逻辑顺序！");
+                loadSentenceQuest();
+            }
+        }
+
+        /* --------------------------------------------------------
+           2. ADVANCED READING COMPREHENSION LOGIC (高阶阅读推理)
+           -------------------------------------------------------- */
+        const hardReadingQuests = [
+            {
+                title: "《黑夜里的探照灯》",
+                passage: "夜幕降临，森林里一片漆黑。小猫头鹰第一次独自出门捕猎。面对未知的黑暗，它感到有些害怕。突然，它抬头看见夜空中挂着一轮皎洁的明月，洒下柔和的光芒。小猫头鹰心中一暖，像是获得了力量，勇敢地振翅飞向远方。",
+                question: "1. 结合上下文，文中“黑夜里的探照灯”最可能指的是什么？",
+                options: ["皎洁的月光，给它带来勇气", "猎人手中的手电筒", "森林里的荧光虫", "飞机的灯光"],
+                answer: 0,
+                explain: "太厉害了！月光在黑夜中洒下光芒，就像探照灯一样给小猫头鹰带来了勇气！"
+            },
+            {
+                title: "《老木匠的百宝箱》",
+                passage: "老木匠有一只磨损得很旧的木箱。大家都以为里面装满了珍贵金银宝物。直到有一天老木匠打开它，里面只有各种使用得发亮的凿子与锯子。老木匠笑着说：‘这才是我创造财富的真正靠山！’",
+                question: "2. 老木匠说的“真正的靠山”指的是什么？",
+                options: ["依靠勤劳的手艺与工具", "箱子里隐藏的金币", "别人的帮助", "买来的宝物"],
+                answer: 0,
+                explain: "答对了！工具代表着老木匠靠自己勤劳双手创造成果的本领！"
+            }
+        ];
+
+        let currentReadIdx = 0;
+
+        function initReadingGame() {
+            currentReadIdx = 0;
+            loadReadingQuest();
+        }
+
+        function loadReadingQuest() {
+            const q = hardReadingQuests[currentReadIdx];
+            document.getElementById('readProgress').innerText = `篇章 ${currentReadIdx + 1}/${hardReadingQuests.length}`;
+            document.getElementById('readStoryTitle').innerText = q.title;
+            document.getElementById('readPassageText').innerText = q.passage;
+            document.getElementById('readQuestionText').innerText = q.question;
+            document.getElementById('readFeedback').innerText = "请仔细推断后选择！";
+
+            const container = document.getElementById('readOptionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full py-2.5 px-4 bg-slate-900 hover:bg-sky-600/80 text-white font-bold rounded-xl border border-slate-800 transition text-left text-xs sm:text-sm btn-bounce flex items-center gap-2';
+                btn.innerHTML = `<span class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-xs font-mono text-sky-300 flex-shrink-0">${String.fromCharCode(65+idx)}</span> <span>${opt}</span>`;
+                btn.onclick = () => {
+                    if (idx === q.answer) {
+                        playSound('correct');
+                        registerCombo(true);
+                        addCoins(35);
+                        document.getElementById('readFeedback').innerText = `✅ 推理完全正确！${q.explain}`;
+                        setTimeout(() => {
+                            currentReadIdx++;
+                            if (currentReadIdx < hardReadingQuests.length) {
+                                loadReadingQuest();
+                            } else {
+                                alert("🎉 深入理解！你成功破解了所有高阶推理篇章！奖励 70 金币！");
+                                addCoins(70);
+                                showMenu();
+                            }
+                        }, 2000);
+                    } else {
+                        playSound('wrong');
+                        registerCombo(false);
+                        document.getElementById('readFeedback').innerText = "❌ 推理有误哦！请结合老木匠或小猫头鹰的心理再读一遍！";
+                    }
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function speakReadingPassage() {
+            const passage = hardReadingQuests[currentReadIdx].passage;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(passage);
+                u.lang = 'zh-CN';
+                u.rate = 0.85;
+                window.speechSynthesis.speak(u);
+            } else {
+                alert("您的浏览器暂不支持语音朗读功能。");
+            }
+        }
+
+        /* --------------------------------------------------------
+           3. HARDCORE MONOPOLY LOGIC (大富翁成语与多音字)
+           -------------------------------------------------------- */
+        let monoPos = 0;
+        const hardMonoQuestions = {
+            1: {
+                q: "请问“重新”的“重”读音与下面哪组相同？",
+                options: ["重（chóng）叠", "重（zhòng）量", "重（zhòng）要", "体重（zhòng）"],
+                answer: 0,
+                reward: 30
+            },
+            3: {
+                q: "成语“刻舟求剑”比喻什么样的人？",
+                options: ["不懂得根据情况变化而改变", "剑术非常高超", "游泳技术很好", "做事非常勤奋"],
+                answer: 0,
+                reward: 35
+            },
+            4: {
+                q: "选出表达“注意力非常集中”的成语：",
+                options: ["聚精会神", "三心二意", "走马观花", "张冠李戴"],
+                answer: 0,
+                reward: 30
+            },
+            6: {
+                q: "请选择最恰当的高级量词：一【 】巨轮",
+                options: ["艘", "条", "座", "只"],
+                answer: 0,
+                reward: 30
+            },
+            8: {
+                q: "选出没有语病的句子：",
+                options: ["大家怀着愉快的心情参加活动。", "我不禁忍不住笑了出来。", "今天下了很大的大雨。", "公园里有五颜六色的大红花。"],
+                answer: 0,
+                reward: 35
+            }
+        };
+
+        function initMonopoly() {
+            monoPos = 0;
+            updateMonopolyPin();
+            document.getElementById('monoEventText').innerText = "点击下方按钮掷骰子开始前进！";
+            document.getElementById('monoOptions').classList.add('hidden');
+            document.getElementById('rollBtn').disabled = false;
+        }
+
+        function rollMonopolyDice() {
+            playSound('roll');
+            const diceIcon = document.getElementById('diceIcon');
+            diceIcon.classList.add('animate-dice');
+
+            const steps = Math.floor(Math.random() * 2) + 1;
+
+            setTimeout(() => {
+                diceIcon.classList.remove('animate-dice');
+                monoPos = Math.min(9, monoPos + steps);
+                updateMonopolyPin();
+                handleMonopolyTile();
+            }, 500);
+        }
+
+        function updateMonopolyPin() {
+            const pin = document.getElementById('playerPin');
+            const targetTile = document.getElementById(`tile-${monoPos}`);
+            targetTile.appendChild(pin);
+            document.getElementById('monoPosText').innerText = `第 ${monoPos} 格`;
+        }
+
+        function handleMonopolyTile() {
+            const eventText = document.getElementById('monoEventText');
+            const optionsBox = document.getElementById('monoOptions');
+            const rollBtn = document.getElementById('rollBtn');
+
+            optionsBox.innerHTML = '';
+
+            if (monoPos === 2) {
+                eventText.innerText = "🎉 发现高阶宝箱！获得 30 金币！";
+                addCoins(30);
+                playSound('correct');
+            } else if (monoPos === 5) {
+                eventText.innerText = "🌟 补给站：思考片刻，战力增加 15 金币！";
+                addCoins(15);
+                playSound('correct');
+            } else if (monoPos === 7) {
+                eventText.innerText = "⚠️ 掉入错字风暴陷阱，扣除 15 金币！";
+                addCoins(-15);
+                playSound('wrong');
+            } else if (monoPos === 9) {
+                eventText.innerText = "🏆 征服高难度大富翁棋盘！终点特训大奖：80 金币！";
+                addCoins(80);
+                playSound('correct');
+                rollBtn.disabled = true;
+                if (typeof confetti === 'function') confetti();
+                return;
+            } else if (hardMonoQuestions[monoPos]) {
+                const q = hardMonoQuestions[monoPos];
+                eventText.innerText = q.q;
+                optionsBox.classList.remove('hidden');
+                rollBtn.disabled = true;
+
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'py-2.5 px-4 bg-slate-800 hover:bg-amber-600 text-white font-bold rounded-xl border border-slate-700 transition btn-bounce text-xs sm:text-sm';
+                    btn.innerText = opt;
+                    btn.onclick = () => {
+                        if (idx === q.answer) {
+                            playSound('correct');
+                            registerCombo(true);
+                            eventText.innerText = `✅ 破译成功！获得 ${q.reward} 金币！点击掷骰子继续！`;
+                            addCoins(q.reward);
+                        } else {
+                            playSound('wrong');
+                            registerCombo(false);
+                            eventText.innerText = `❌ 判定错误！请吸取经验，点击掷骰子继续前进！`;
+                        }
+                        optionsBox.classList.add('hidden');
+                        rollBtn.disabled = false;
+                    };
+                    optionsBox.appendChild(btn);
+                });
+                return;
+            } else {
+                eventText.innerText = "继续向终点冲刺吧！";
+            }
+        }
+
+        /* --------------------------------------------------------
+           4. RADICALS 3-COMPONENT FUSION (三重部件汉字拆合)
+           -------------------------------------------------------- */
+        const hardRadicalQuests = [
+            {
+                targetMeaning: "【目标】选择 3 个部件，合成代表“军营/训练营”的字：",
+                parts: ["艹", "宀", "𠂉", "氵", "木"],
+                correctCombo: ["艹", "宀", "𠂉"],
+                resultChar: "营"
+            },
+            {
+                targetMeaning: "【目标】选择 3 个部件，合成代表“教育/培育”的字：",
+                parts: ["亠", "厶", "月", "亻", "扌"],
+                correctCombo: ["亠", "厶", "月"],
+                resultChar: "育"
+            },
+            {
+                targetMeaning: "【目标】选择 3 个部件，合成代表“艺术/技能”的字：",
+                parts: ["艹", "土", "丸", "讠", "寸"],
+                correctCombo: ["艹", "土", "丸"],
+                resultChar: "艺"
+            }
+        ];
+
+        let currentRadIdx = 0;
+        let selectedRadParts = [];
+
+        function initRadicals() {
+            currentRadIdx = 0;
+            loadRadicalQuest();
+        }
+
+        function loadRadicalQuest() {
+            const quest = hardRadicalQuests[currentRadIdx];
+            selectedRadParts = [];
+
+            document.getElementById('radProgress').innerText = `${currentRadIdx + 1}/${hardRadicalQuests.length}`;
+            document.getElementById('radTargetMeaning').innerText = quest.targetMeaning;
+
+            updateRadicalSlots();
+            document.getElementById('slotResult').innerText = '?';
+
+            const container = document.getElementById('radPartsContainer');
+            container.innerHTML = '';
+
+            quest.parts.forEach(part => {
+                const card = document.createElement('button');
+                card.className = 'w-14 h-14 bg-indigo-800 hover:bg-indigo-600 text-white font-bold text-2xl rounded-2xl border border-indigo-400 shadow-md transition btn-bounce flex items-center justify-center';
+                card.innerText = part;
+                card.onclick = () => {
+                    if (selectedRadParts.length < 3 && !selectedRadParts.includes(part)) {
+                        selectedRadParts.push(part);
+                        card.disabled = true;
+                        card.classList.add('opacity-40');
+                        playSound('roll');
+                        updateRadicalSlots();
+                    }
+                };
+                container.appendChild(card);
+            });
+        }
+
+        function updateRadicalSlots() {
+            document.getElementById('slot1').innerText = selectedRadParts[0] || '?';
+            document.getElementById('slot2').innerText = selectedRadParts[1] || '?';
+            document.getElementById('slot3').innerText = selectedRadParts[2] || '?';
+        }
+
+        function resetRadicalSlots() {
+            loadRadicalQuest();
+        }
+
+        function checkRadicalPuzzle() {
+            const quest = hardRadicalQuests[currentRadIdx];
+            const isCorrect = selectedRadParts.length === 3 && quest.correctCombo.every(p => selectedRadParts.includes(p));
+
+            if (isCorrect) {
+                playSound('correct');
+                registerCombo(true);
+                document.getElementById('slotResult').innerText = quest.resultChar;
+                addCoins(35);
+
+                setTimeout(() => {
+                    currentRadIdx++;
+                    if (currentRadIdx < hardRadicalQuests.length) {
+                        loadRadicalQuest();
+                    } else {
+                        alert("🎉 太惊人了！你成功合成了所有复杂的三重部件汉字！奖励 70 金币！");
+                        addCoins(70);
+                        showMenu();
+                    }
+                }, 1300);
+            } else {
+                playSound('wrong');
+                registerCombo(false);
+                alert("❌ 部件组合不匹配或缺少核心偏旁！重新清空再试一次！");
+            }
+        }
+
+        /* --------------------------------------------------------
+           5. HARDCORE DETECTIVE LOGIC (高级语病侦探)
+           -------------------------------------------------------- */
+        const hardDetectiveCases = [
+            {
+                tokens: ["听到", "这个好消息，", "我不禁", "忍不住", "高兴地", "跳了起来。"],
+                wrongIdx: 3,
+                hint: "解析：“我不禁”与“忍不住”意思重复赘述，应当删去其中一个！",
+                type: "语病（重复）"
+            },
+            {
+                tokens: ["今天", "我写完了", "一册", "功课。"],
+                wrongIdx: 2,
+                hint: "解析：量词搭配错误！应当是“一份”或“许多”功课，不能说“一册”功课！",
+                type: "搭配不当"
+            },
+            {
+                tokens: ["操场上", "正在", "热烈地", "进行着", "足球比赛。"],
+                wrongIdx: 2,
+                hint: "解析：搭配不当！应当是“激烈地”进行比赛，而不是“热烈地”！",
+                type: "词语搭配"
+            }
+        ];
+
+        let currentDetIdx = 0;
+
+        function initDetective() {
+            currentDetIdx = 0;
+            loadDetectiveCase();
+        }
+
+        function loadDetectiveCase() {
+            const cData = hardDetectiveCases[currentDetIdx];
+            document.getElementById('detProgress').innerText = `案件 ${currentDetIdx + 1}/${hardDetectiveCases.length}`;
+            document.getElementById('detHintText').innerText = "🔍 侦探提示：找出表达重复或搭配不当的词语！";
+
+            const storyBox = document.getElementById('caseStoryText');
+            storyBox.innerHTML = '';
+
+            cData.tokens.forEach((token, idx) => {
+                const wordBtn = document.createElement('button');
+                wordBtn.className = 'px-3 py-1.5 bg-slate-800 hover:bg-emerald-600/60 text-white font-bold rounded-xl border border-slate-700 transition text-sm sm:text-base btn-bounce';
+                wordBtn.innerText = token;
+                wordBtn.onclick = () => handleDetectiveChoice(idx, wordBtn);
+                storyBox.appendChild(wordBtn);
+            });
+        }
+
+        function handleDetectiveChoice(selectedIdx, btnEl) {
+            const cData = hardDetectiveCases[currentDetIdx];
+
+            if (selectedIdx === cData.wrongIdx) {
+                playSound('correct');
+                registerCombo(true);
+                btnEl.className = 'px-3 py-1.5 bg-emerald-600 text-white font-bold rounded-xl border border-emerald-300 shadow-lg text-sm sm:text-base';
+                document.getElementById('detHintText').innerText = `🎉 破解成功！【${cData.type}】${cData.hint}`;
+                addCoins(40);
+
+                setTimeout(() => {
+                    currentDetIdx++;
+                    if (currentDetIdx < hardDetectiveCases.length) {
+                        loadDetectiveCase();
+                    } else {
+                        alert("🕵️ 破案神探！你击败了所有高难度语病案件！奖励 90 金币！");
+                        addCoins(90);
+                        showMenu();
+                    }
+                }, 2000);
+            } else {
+                playSound('wrong');
+                registerCombo(false);
+                btnEl.className = 'px-3 py-1.5 bg-rose-600 text-white font-bold rounded-xl border border-rose-300 text-sm sm:text-base';
+                document.getElementById('detHintText').innerText = "❌ 这里的搭配或语法是没有问题的，再仔细核查！";
+                setTimeout(() => {
+                    btnEl.className = 'px-3 py-1.5 bg-slate-800 hover:bg-emerald-600/60 text-white font-bold rounded-xl border border-slate-700 transition text-sm sm:text-base btn-bounce';
+                }, 1000);
+            }
+        }
+
+        // Initialize App View
+        window.onload = function() {
+            showMenu();
+        };
+    </script>
+</body>
+</html>
